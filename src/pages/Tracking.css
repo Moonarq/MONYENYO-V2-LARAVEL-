@@ -69,8 +69,11 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: url('/images/1.jpg') center/cover no-repeat;
-    opacity: 0.25;
+    background: linear-gradient(
+        rgba(139, 69, 19, 0.35),
+        rgba(139, 69, 19, 0.35)
+    ), url('/images/1.jpg') center/cover no-repeat;
+    opacity: 1;
     z-index: 0;
 }
 
@@ -189,7 +192,7 @@
 }
 
 .tracking-submit-btn {
-    background: #1a1a1a;
+    background: #8B4513;
     color: white;
     border: none;
     padding: 14px 24px;
@@ -206,7 +209,7 @@
 }
 
 .tracking-submit-btn:hover:not(:disabled) {
-    background: #000;
+    background: #8B4513;
 }
 
 .tracking-submit-btn:disabled {
