@@ -116,7 +116,7 @@ React.useEffect(() => {
                           {[...Array(5)].map((_, index) => (
                             <i key={index} className="fas fa-star"></i>
                           ))}
-                          <span>{item.rating}</span>
+                          <span>4.8</span>
                         </div>
                       </div>
                     </div>
