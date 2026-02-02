@@ -1,0 +1,586 @@
+.language-toggle .cart-icon {
+  font-size: 18px;
+  color: #333;
+  text-decoration: none;
+  margin-right: 20px;
+}
+
+.language-toggle .cart-icon:hover {
+  color: #c59d5f;
+}
+
+/* Cart icon color override for navbar state */
+.header.desktop-transparent .language-toggle .cart-icon {
+  color: #fff !important;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+.header.desktop-solid .language-toggle .cart-icon {
+  color: #333 !important;
+}
+
+@media (max-width: 768px) {
+  .header.desktop-transparent .desktop-navbar-logo {
+    margin-top: -20px; /* FIXED: Changed from 15px to 0px */
+  }
+}
+.header.desktop-solid .desktop-navbar-logo {
+    margin-top: -5px;
+}
+@media (min-width: 769px) {
+  .header.desktop-transparent .desktop-navbar-logo {
+    margin-top: 7px;
+  }
+  .header.desktop-solid .desktop-navbar-logo {
+    margin-top: 7px;
+  }
+}
+
+/* Header/Navbar & Mobile Menu Styles */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: transparent;
+    padding: 20px 0;
+    z-index: 1000;
+    zoom:0.9;
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+/* Navbar scroll states */
+.header.desktop-transparent {
+    background: transparent;
+}
+
+.header.desktop-solid {
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.header.hide-on-scroll {
+    transform: translateY(-100%);
+}
+
+.header.show-on-scroll-up {
+    transform: translateY(0);
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Mobile Left Section - Container for Hamburger and Cart */
+.mobile-left-section {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  height: 30px;
+}
+
+/* Mobile Cart Icon */
+.mobile-cart-icon {
+  font-size: 26px; /* dari 18px */
+  color: #ffffff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; /* dari 30px */
+  height: 36px; /* dari 30px */
+}
+
+
+.mobile-cart-icon:hover {
+  color: #c59d5f;
+}
+
+/* Mobile cart icon color for different navbar states */
+.header.desktop-transparent .mobile-cart-icon {
+  color: #fff !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  margin-left: 38px; /* Atur sesuai kebutuhan, misalnya 8px atau 10px */
+  margin-top: 35px; /* Atur sesuai kebutuhan, misalnya 8px atau 10px */
+}
+
+.header.desktop-solid .mobile-cart-icon {
+  color: #fff !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  margin-right: 270px;
+  margin-top: 1px;
+
+  font-size: 26px;   /* dari default 18px → sedikit lebih besar */
+  width: 34px;       /* dari 30px → tambah sedikit */
+  height: 34px;
+}
+
+
+.header.show-on-scroll-up .mobile-cart-icon {
+  color: #fff !important;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-right: 40px;
+    margin-left: -99px;
+}
+
+.social-link {
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    opacity: 0.9;
+    transition: opacity 0.3s;
+}
+
+.social-link:hover {
+    opacity: 1;
+}
+
+.nav-menu, .nav-menu-right {
+    display: flex;
+    gap: 40px;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 1px;
+    transition: opacity 0.3s;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 3px;
+    background: transparent;
+    border-radius: 2px;
+    transition: background 0.3s;
+}
+
+.nav-link.active::after,
+.nav-link:hover::after {
+    background: #8B4513;
+}
+
+.nav-link:hover {
+    opacity: 0.8;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 40px;
+}
+
+.logo-icon {
+    font-size: 24px;
+}
+
+/* Logo text styling */
+.logo-text {
+    font-size: 26px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: -0.5px;
+    text-decoration: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Logo link - remove white lines */
+.nav-logo a,
+.nav-logo Link {
+    text-decoration: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+.language-toggle {
+    color: white;
+    font-weight: 600;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: -99px;
+}
+
+/* Language toggle color for transparent and solid navbar */
+.header.desktop-transparent .language-toggle {
+    color: #fff;
+}
+.header.desktop-solid .language-toggle {
+    color: #222;
+}
+
+/* Hamburger Menu Button (Hidden on Desktop) */
+.hamburger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    z-index: 1001;
+}
+
+.hamburger-menu span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background: #1b1818;
+    margin: 3px 0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.hamburger-menu.active {
+  display: none !important;
+}
+
+.hamburger-menu.active span:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+.hamburger-menu.menu-open {
+    display: none;
+}
+
+/* Mobile Menu Overlay - All mobile menu styles unified in index.css only */
+
+.mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.mobile-nav-link {
+    color: #2c2c2c;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px 0;
+    border-bottom: 1px solid #f8f9fa;
+    transition: color 0.3s ease;
+}
+
+.mobile-nav-link:hover {
+    color: #8B4513;
+}
+
+.mobile-contact {
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.mobile-contact a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #8B4513;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.mobile-contact i {
+    color: #FFD700;
+}
+
+.mobile-social {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+    text-align: center;
+}
+
+.mobile-social-title {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.mobile-social-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.mobile-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #f8f9fa;
+    color: #666;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 18px;
+}
+
+.mobile-social-link:hover {
+    background: #8B4513;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Garis bawah nav-link hanya untuk navbar solid, bukan transparan */
+.header.desktop-solid .nav-link.active::after,
+.header.desktop-solid .nav-link:hover::after {
+    background: #8B4513;
+}
+
+/* Nonaktifkan underline di navbar transparan */
+.header.desktop-transparent .nav-link::after {
+    background: transparent !important;
+}
+
+/* React Router Link - remove default styling that causes white lines */
+.nav-logo a[href],
+.nav-logo Link,
+a.logo-text,
+Link.logo-text {
+    text-decoration: none !important;
+    border: none !important;
+    outline: none !important;
+    color: inherit !important;
+    background: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    -webkit-text-stroke: none !important;
+}
+
+.nav-logo a:hover,
+.nav-logo a:focus,
+.nav-logo a:active,
+.nav-logo a:visited,
+.nav-logo Link:hover,
+.nav-logo Link:focus,
+.nav-logo Link:active,
+.nav-logo Link:visited {
+    text-decoration: none !important;
+    border: none !important;
+    border-bottom: none !important;
+    border-top: none !important;
+    outline: none !important;
+    color: inherit !important;
+}
+
+/* Additional comprehensive logo link reset */
+.nav-logo a *,
+.nav-logo Link * {
+    text-decoration: none !important;
+    border: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+}
+
+/* Responsive header/navbar/mobile menu styles (media queries) akan dipindah juga ke sini */
+
+@media (max-width: 768px) {
+  .header .logo-text {
+    font-size: 1.6rem;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+  .language-toggle {
+    display: none !important;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {    
+    .header .logo-text {
+        font-size: 1.6rem;
+        text-decoration: none !important;
+        border: none !important;
+        outline: none !important;
+    }
+    
+    .language-toggle {
+        display: none !important;
+    }
+    
+    /* Show mobile left section only on mobile */
+    .mobile-left-section {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    /* Hide desktop hamburger when mobile left section is active */
+    .header .container > .hamburger-menu {
+        display: none !important;
+    }
+    
+    /* Mobile hamburger menu styling adjustments */
+    .mobile-left-section .hamburger-menu {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Mobile hamburger span colors for different navbar states */
+    .header.desktop-transparent .mobile-left-section .hamburger-menu span {
+        background: #ffffff;
+         transform: translateY(-13px);
+    }
+    
+    .header.desktop-solid .mobile-left-section .hamburger-menu span,
+    .header.show-on-scroll-up .mobile-left-section .hamburger-menu span {
+        background: #ffffff !important;
+    }
+}
+
+/* Hide mobile left section on desktop */
+@media (min-width: 769px) {
+  .mobile-left-section {
+    display: none !important;
+  }
+}
+
+.header.desktop-solid .nav-link,
+.header.desktop-solid .social-link,
+.header.desktop-solid .cart-icon {
+  color: #222 !important;
+}
+/* Cart Badge Notification Styles */
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4444;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  z-index: 10;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  min-width: 20px;
+  padding: 0;
+}
+
+/* Desktop Cart Badge */
+.language-toggle .cart-icon {
+  position: relative;
+  display: inline-block;
+}
+
+.desktop-cart-badge {
+  /* Inherit base styles from .cart-badge */
+}
+
+/* Mobile Cart Badge */
+.mobile-cart-icon {
+  position: relative;
+  display: inline-flex !important;
+}
+
+.mobile-cart-badge {
+  /* Inherit base styles from .cart-badge */
+}
+
+/* Badge responsive adjustments */
+@media (max-width: 768px) {
+  .cart-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    top: -6px;
+    right: -6px;
+  }
+}
+
+/* Badge animation */
+.cart-badge {
+  animation: badge-appear 0.3s ease-out;
+}
+
+@keyframes badge-appear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Badge color variations */
+.cart-badge.new-item {
+  background: #28a745;
+  animation: badge-pulse 2s ease-in-out;
+}
+
+@keyframes badge-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Badge for different navbar states */
+.header.desktop-transparent .cart-badge {
+  border-color: rgba(255,255,255,0.8);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.header.desktop-solid .cart-badge {
+  border-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Ensure cart icon doesn't overflow */
+.language-toggle .cart-icon,
+.mobile-cart-icon {
+  overflow: visible;
+}
