@@ -57,13 +57,18 @@
     background: #2c2c2c !important;
 }
 
+/* Adjust company label underline for Blogs page */
+.blogs-page .company-label::after {
+    left: 50px;
+}
+
 /* Hero Section Adjustments */
 .hero-text-center {
     text-align: center;
     max-width: 800px;
     margin: 0 auto;
     margin-top: 250px; /* Move hero text further down */
-    padding-bottom: 80px; /* Add bottom padding to create space */
+    padding-bottom: 100px; /* Add bottom padding to create space */
 }
 
 .hero-description {
@@ -215,7 +220,7 @@
 
 .categories-header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 10px;
 }
 
 .section-title {
@@ -250,26 +255,10 @@
     overflow: hidden;
 }
 
-.category-card:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(139, 92, 42, 0.1), transparent);
-    transition: left 0.5s;
-}
-
-.category-card:hover:before {
-    left: 100%;
-}
-
 .category-card:hover,
 .category-card.active {
     border-color: #8B5C2A;
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(139, 92, 42, 0.2);
+    box-shadow: 0 5px 15px rgba(139, 92, 42, 0.1);
 }
 
 .category-card i {

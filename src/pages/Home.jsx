@@ -49,6 +49,7 @@ const Home = () => {
       <AboutSection />
       <FreshSection />
       <MenuSection />
+      <BlogPreviewSection />
       
     </>
   )

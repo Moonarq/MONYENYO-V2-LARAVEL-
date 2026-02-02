@@ -127,8 +127,7 @@ const Blogs = () => {
         <section className="blog-categories">
           <div className="container">
           <div className="categories-header">
-            <h2 className="section-title">{t('TEMUKAN PROMO MENARIK')}</h2>
-            <p className="section-subtitle">{t('Temukan promo dan info yang kamu cari')}</p>
+      
             </div>
             <div className="categories-grid">
               {categories.map(category => (
