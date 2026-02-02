@@ -86,9 +86,9 @@ const Tracking = () => {
           <div className="container">
             <div className="tracking-hero-content">
               <div className="hero-text-center">
-                <h1 className="hero-main-title">Lacak Paket Anda</h1>
+                <h1 className="hero-main-title">Track Your Package</h1>
                 <p className="hero-description">
-                  Masukkan nomor resi untuk mengetahui status terkini pengiriman paket Monyenyo Anda
+                  Enter your tracking number to see the latest status of your Monyenyo package
                 </p>
               </div>
             </div>

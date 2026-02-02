@@ -72,7 +72,7 @@
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, #8B4513 0%, #6B3410 100%);
+    background: #000000;
     color: white;
     padding: 133px 0;
     text-align: center;
@@ -88,8 +88,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover;
-    opacity: 0.1;
+    background: url('/images/tracking.jpg') center/cover;
+    opacity: 0.25;
     z-index: 0;
 }
 
@@ -132,6 +132,20 @@
     line-height: 1.6;
 }
 
+@media (min-width: 1024px) {
+    .hero-badge {
+        transform: translateY(-100px);
+    }
+    
+    .outlets-page .hero-title {
+        transform: translateY(-25px);
+    }
+    
+    .hero-subtitle {
+        transform: translateY(-75px) translateX(-145px);
+    }
+}
+
 .hero-cta {
     display: flex;
     gap: 20px;
@@ -150,7 +164,7 @@
 
 .btn-primary {
     background: white;
-    color: #8B4513;
+    color: #1a1a1a;
 }
 
 .btn-primary:hover {
@@ -167,7 +181,7 @@
 
 .btn-secondary:hover {
     background: white;
-    color: #8B4513;
+    color: #1a1a1a;
     transform: translateY(-3px);
 }
 
