@@ -17,6 +17,7 @@ import './Checkout.css'
 import { API_ENDPOINTS, getImageUrl as getApiImageUrl } from '../config/api'
 import jneDestinationData from '../data/jne_destination.json'
 import jneCityMap from '../data/jneCityMap.json';
+import qrisLogo from '../assets/images/qris.png';
 
 // ✅ Helper functions untuk mengelola menuVoucher di localStorage
 const getMenuVoucher = () => {
@@ -491,7 +492,7 @@ const Checkout = () => {
       }));
       
       // Call backend PHP proxy with destination code
-      const apiUrl = `https://api.monyenyo.com/jne.php?thru=${destinationInfo.code}&items=${encodeURIComponent(JSON.stringify(items))}`;
+     const apiUrl = `http://localhost/monyenyofix/backend/public/api/shipping/jne?thru=${destinationInfo.code}`;
       
       console.log('📡 Calling JNE API:', apiUrl);
       
@@ -524,27 +525,39 @@ const Checkout = () => {
       }
 
       // Process and filter services (only REG and OKE for brownies delivery)
-      if (data && data.price && Array.isArray(data.price) && data.price.length > 0) {
-        const filteredServices = data.price.filter(service => {
-          const serviceType = service.service_display?.toUpperCase();
-          return serviceType === 'REG' || serviceType === 'OKE';
-        });
+if (data && data.price && Array.isArray(data.price) && data.price.length > 0) {
 
-        const processedServices = filteredServices.map(service => {
-          const etdFrom = service.etd_from ?? '?';
-          const etdThru = service.etd_thru ?? '?';
-          
-          return {
-            ...service,
-            etd_from: etdFrom,
-            etd_thru: etdThru,
-            estimateText: (etdFrom !== '?' && etdThru !== '?' && etdFrom !== null && etdThru !== null) 
-              ? `${etdFrom} - ${etdThru} hari kerja`
-              : 'Estimasi tidak tersedia',
-            displayName: service.service_display === 'REG' ? 'Regular (REG)' : 'Ekonomi (OKE)',
-            destination_name: destinationInfo.name
-          };
-        });
+const filteredServices = data.price.filter(service => {
+  const serviceType = service.service_display?.toUpperCase();
+
+  return [
+    'REG',
+    'OKE',
+    'CTC',
+    'CTCYES',
+    'YES'
+  ].includes(serviceType);
+});
+
+
+  const processedServices = filteredServices.map(service => {
+    const etdFrom = service.etd_from ?? '?';
+    const etdThru = service.etd_thru ?? '?';
+    
+    return {
+      ...service,
+      etd_from: etdFrom,
+      etd_thru: etdThru,
+
+      estimateText: (etdFrom !== '?' && etdThru !== '?' && etdFrom !== null && etdThru !== null) 
+        ? `${etdFrom} - ${etdThru} hari kerja`
+        : 'Estimasi tidak tersedia',
+
+      displayName: service.service_display,
+
+      destination_name: destinationInfo.name
+    };
+  });
         
         setJneServices(processedServices);
         setJneError('');
@@ -1386,7 +1399,7 @@ const Checkout = () => {
         console.log('📦 Sending COD order data to backend:', checkoutPayload)
 
         // Send COD order directly to checkout endpoint
-        const codResponse = await fetch('https://api.monyenyo.com/api/checkout', {
+        const codResponse = await fetch('http://localhost/monyenyofix/backend/public/api/checkout', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1398,10 +1411,14 @@ const Checkout = () => {
         })
 
         const codData = await codResponse.json()
+        console.log('FULL ERROR:', JSON.stringify(codData.errors, null, 2))
+console.log('COD Response Status:', codResponse.status)
+console.log('COD Response Data:', codData)
+console.log('COD Errors:', JSON.stringify(codData.errors, null, 2))
 
-        if (!codResponse.ok) {
-          throw new Error(codData.message || `COD Checkout Error: ${codResponse.status}`)
-        }
+if (!codResponse.ok) {
+  throw new Error(codData.message || `COD Checkout Error: ${codResponse.status}`)
+}
 
         if (codData.success) {
           console.log('✅ COD Order berhasil disimpan:', codData.data)
@@ -1410,6 +1427,7 @@ const Checkout = () => {
           if (!isBuyNow) {
             console.log('COD Cart checkout completed successfully')
           }
+          
           
           // Navigate langsung ke order success untuk COD
           navigate('/order-success', { 
@@ -1447,7 +1465,7 @@ const Checkout = () => {
       console.log('💳 Non-COD Payment - Processing with Midtrans')
 
       // ✅ ENHANCED: Request Midtrans token dengan complete order data
-      const res = await fetch('https://api.monyenyo.com/api/midtrans/token', {
+     const res = await fetch('http://localhost/monyenyofix/backend/public/api/midtrans/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1524,6 +1542,7 @@ const Checkout = () => {
           order_data: completeOrderData
         })
       });
+      
 
       const data = await res.json();
 
@@ -1895,13 +1914,13 @@ const Checkout = () => {
                     </h5>
                     
                     {/* Debug Info - Remove in production */}
-                    {process.env.NODE_ENV === 'development' && (
+                    {/* {process.env.NODE_ENV === 'development' && (
                       <div style={{ fontSize: '12px', color: '#666', marginBottom: '8px' }}>
                         Debug: Province: {shippingAddress.province}, City: {shippingAddress.regency}, 
                         Address Loading: {addressLoading.toString()}, 
                         JNE Services: {jneServices.length}, Payment: {selectedPayment}
                       </div>
-                    )}
+                    )} */}
                     
                     {isLoadingJne && (
                       <div className="jne-loading" style={{
@@ -1912,7 +1931,7 @@ const Checkout = () => {
                         margin: '8px 0',
                         textAlign: 'center'
                       }}>
-                        <span>🔄 Memuat layanan JNE...</span>
+                        <span> Memuat layanan JNE...</span>
                       </div>
                     )}
                     
@@ -2100,6 +2119,21 @@ const Checkout = () => {
                     type="radio" 
                     name="payment" 
                     checked={selectedPayment === 'bni'}
+                    readOnly
+                  />
+                </div>
+
+                <div className="payment-option" onClick={() => handlePaymentSelect('qris')}>
+                  <div className="payment-info">
+                    <div className="bank-logo">
+                      <img src={qrisLogo} alt="QRIS" style={{height: 15, width: 'auto', objectFit: 'contain'}} />
+                    </div>
+                    <span>QRIS</span>
+                  </div>
+                  <input 
+                    type="radio" 
+                    name="payment" 
+                    checked={selectedPayment === 'qris'}
                     readOnly
                   />
                 </div>

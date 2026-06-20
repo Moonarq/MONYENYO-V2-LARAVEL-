@@ -11,10 +11,10 @@ class CheckoutController extends Controller
 {
     public function store(Request $request)
     {
-        // Validasi data yang diterima
         $validator = Validator::make($request->all(), [
             // Shipping Address
             'shippingAddress.name' => 'required|string|max:255',
+            'shippingAddress.email' => 'required|email|max:255',
             'shippingAddress.phone' => 'required|string|max:20',
             'shippingAddress.country' => 'required|string|max:100',
             'shippingAddress.address' => 'required|string',
@@ -25,10 +25,10 @@ class CheckoutController extends Controller
             'shippingAddress.subdistrict' => 'required|string|max:100',
             
             // Payment & Shipping
-            'paymentMethod' => 'required|string|in:bca,mandiri,bri,alfamart,gopay',
-            'shipping.method' => 'required|string|in:reguler,ninja',
+            'paymentMethod' => 'required|string|in:cod,mandiri,bri,bni,permata,CIMB NIAGA,qris',
+            'shipping.method' => 'required|string|in:reguler,ninja,jne',
             'shipping.cost' => 'required|numeric|min:0',
-            'shipping.isFree' => 'boolean',
+            'shipping.isFree' => 'nullable|boolean',
             'insurance.selected' => 'boolean',
             'insurance.cost' => 'required|numeric|min:0',
             
@@ -61,13 +61,12 @@ class CheckoutController extends Controller
         try {
             $validatedData = $validator->validated();
             
-            // Hitung total items
             $totalItems = collect($validatedData['items'])->sum('quantity');
             
-            // Siapkan data untuk disimpan
             $dataPembeli = DataPembeli::create([
                 // Shipping Address
                 'name' => $validatedData['shippingAddress']['name'],
+                'email' => $validatedData['shippingAddress']['email'],
                 'phone' => $validatedData['shippingAddress']['phone'],
                 'country' => $validatedData['shippingAddress']['country'],
                 'address' => $validatedData['shippingAddress']['address'],
@@ -97,7 +96,7 @@ class CheckoutController extends Controller
                 'grand_total' => $validatedData['totals']['grandTotal'],
                 
                 // Additional Info
-                'notes' => $validatedData['notes'],
+                'notes' => $validatedData['notes'] ?? null,
                 'is_buy_now' => $validatedData['isBuyNow'] ?? false,
                 'status' => 'pending'
             ]);
