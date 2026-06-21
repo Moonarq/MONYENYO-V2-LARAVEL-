@@ -14,6 +14,7 @@ use Filament\Infolists\Infolist;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 class DataPembeliResource extends Resource
 {
@@ -50,13 +51,13 @@ class DataPembeliResource extends Resource
                                     }
                                 }),
 
+                            // Resi sekarang BISA diedit manual (fallback kalau auto-generate JNE gagal)
                             Forms\Components\TextInput::make('no_resi')
                                 ->label('Nomor Resi JNE')
-                                ->placeholder('Otomatis terisi setelah order diproses')
-                                ->disabled()
-                                ->dehydrated(false)
+                                ->placeholder('Belum digenerate — isi manual jika perlu')
                                 ->suffixIcon('heroicon-o-truck')
-                                ->helperText('Resi digenerate otomatis oleh sistem'),
+                                ->helperText('Otomatis terisi sistem, tapi bisa diisi/diganti manual jika gagal.')
+                                ->maxLength(50),
                         ]),
 
                     Forms\Components\Textarea::make('admin_notes')
@@ -64,6 +65,53 @@ class DataPembeliResource extends Resource
                         ->placeholder('Tambahkan catatan internal untuk tim...')
                         ->rows(3)
                         ->columnSpanFull(),
+                ]),
+
+            // ── Produk Dipesan ─────────────────────────────────────────
+            // INI YANG SEBELUMNYA HILANG DARI FORM — admin sekarang langsung
+            // lihat barang apa saja yang dipesan tanpa harus buka tab lain.
+            Forms\Components\Section::make('Produk Dipesan')
+                ->description('Daftar barang yang dibeli pelanggan pada order ini')
+                ->icon('heroicon-o-shopping-cart')
+                ->schema([
+                    Forms\Components\Repeater::make('items')
+                        ->label('')
+                        ->schema([
+                            Forms\Components\Grid::make(4)
+                                ->schema([
+                                    Forms\Components\TextInput::make('name')
+                                        ->label('Nama Produk')
+                                        ->disabled()
+                                        ->dehydrated(false)
+                                        ->columnSpan(2),
+
+                                    Forms\Components\TextInput::make('quantity')
+                                        ->label('Qty')
+                                        ->disabled()
+                                        ->dehydrated(false)
+                                        ->suffix(' pcs'),
+
+                                    Forms\Components\TextInput::make('price')
+                                        ->label('Harga Satuan')
+                                        ->disabled()
+                                        ->dehydrated(false)
+                                        ->prefix('Rp ')
+                                        ->formatStateUsing(fn ($state) => number_format((float) $state)),
+                                ]),
+                        ])
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->addable(false)
+                        ->deletable(false)
+                        ->reorderable(false)
+                        ->collapsible(false)
+                        ->columnSpanFull(),
+
+                    Forms\Components\Placeholder::make('total_items_display')
+                        ->label('Total Item')
+                        ->content(fn ($record) => $record?->total_items
+                            ? $record->total_items . ' pcs'
+                            : '—'),
                 ]),
 
             // ── Data Pembeli ───────────────────────────────────────────
@@ -96,7 +144,7 @@ class DataPembeliResource extends Resource
                         ]),
                 ])
                 ->collapsible()
-                ->collapsed(),
+                ->collapsed(false), // dibuka default — admin sering butuh kontak cepat
 
             // ── Alamat Pengiriman ──────────────────────────────────────
             Forms\Components\Section::make('Alamat Pengiriman')
@@ -138,11 +186,11 @@ class DataPembeliResource extends Resource
                         ->dehydrated(false),
                 ])
                 ->collapsible()
-                ->collapsed(),
+                ->collapsed(false), // dibuka default — sering dipakai cek alamat
 
             // ── Detail Pesanan ─────────────────────────────────────────
             Forms\Components\Section::make('Detail Pesanan')
-                ->icon('heroicon-o-shopping-cart')
+                ->icon('heroicon-o-information-circle')
                 ->schema([
                     Forms\Components\Grid::make(3)
                         ->schema([
@@ -253,6 +301,7 @@ class DataPembeliResource extends Resource
                     ->sortable()
                     ->copyable()
                     ->weight('bold')
+                    ->extraAttributes(['style' => 'color: #ffffff !important;'])
                     ->size('sm'),
 
                 Tables\Columns\TextColumn::make('name')
@@ -260,6 +309,53 @@ class DataPembeliResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->wrap(),
+
+                // ── KOLOM BARU: ringkasan produk langsung di tabel ──────
+                // Admin tidak perlu lagi klik "Kelola" hanya untuk tahu
+                // barang apa yang dipesan.
+                //
+                // PENTING: pakai getStateUsing($record) — bukan formatStateUsing($state) —
+                // karena untuk kolom array/JSON, $state yang dikirim Filament ke
+                // formatStateUsing() tidak selalu berupa array hasil cast Model.
+                // getStateUsing() ambil langsung dari $record->items yang sudah pasti
+                // di-cast 'array' oleh Model, jadi datanya konsisten.
+                Tables\Columns\TextColumn::make('items')
+                    ->label('Produk Dibeli')
+                    ->getStateUsing(function ($record) {
+                        $items = $record->items;
+
+                        if (empty($items) || !is_array($items)) {
+                            return '—';
+                        }
+
+                        return collect($items)
+                            ->map(fn ($item) => ($item['name'] ?? '-') . ' x' . ($item['quantity'] ?? 1))
+                            ->implode(', ');
+                    })
+                    ->tooltip(function ($record) {
+                        $items = $record->items;
+
+                        if (empty($items) || !is_array($items)) {
+                            return null;
+                        }
+
+                        return collect($items)
+                            ->map(fn ($item) => '• ' . ($item['name'] ?? '-') . ' x' . ($item['quantity'] ?? 1))
+                            ->implode("\n");
+                    })
+                    ->limit(50)
+                    ->wrap()
+                    ->size('sm')
+                    ->color('gray'),
+
+                Tables\Columns\TextColumn::make('total_items')
+                    ->label('Jml Item')
+                    ->suffix(' pcs')
+                    ->alignCenter()
+                    ->sortable()
+                    ->size('sm')
+                    ->color('gray')
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('regency')
                     ->label('Kota Tujuan')
@@ -360,6 +456,22 @@ class DataPembeliResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->label('Lihat Detail Pesanan')
+                        ->icon('heroicon-o-eye'),
+
+                    Tables\Actions\EditAction::make()
+                        ->label('Edit')
+                        ->icon('heroicon-o-pencil-square'),
+
+                    Tables\Actions\Action::make('print_resi')
+                        ->label('Print Resi')
+                        ->icon('heroicon-o-printer')
+                        ->color('gray')
+                        ->visible(fn ($record) => filled($record->no_resi))
+                        ->url(fn ($record) => route('print-resi', $record))
+                        ->openUrlInNewTab(),
+
                     Tables\Actions\Action::make('mark_paid')
                         ->label('Tandai Dibayar')
                         ->icon('heroicon-o-check-circle')
@@ -436,10 +548,6 @@ class DataPembeliResource extends Resource
                 ->icon('heroicon-o-ellipsis-vertical')
                 ->size('sm')
                 ->color('gray'),
-
-                Tables\Actions\EditAction::make()
-                    ->label('Kelola')
-                    ->size('sm'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -611,6 +719,9 @@ class DataPembeliResource extends Resource
                 ]),
 
             // ── Detail Produk ──────────────────────────────────────────
+            // Catatan: 'items' adalah kolom JSON (bukan relasi Eloquent),
+            // jadi pastikan Model DataPembeli punya cast:
+            //   protected $casts = ['items' => 'array'];
             Infolists\Components\Section::make('Detail Produk')
                 ->icon('heroicon-o-cube')
                 ->schema([
@@ -644,6 +755,12 @@ class DataPembeliResource extends Resource
                                 ]),
                         ])
                         ->contained(false),
+
+                    Infolists\Components\TextEntry::make('total_items')
+                        ->label('Total Item')
+                        ->suffix(' pcs')
+                        ->weight('bold')
+                        ->color('gray'),
                 ]),
 
             // ── Ringkasan Keuangan ─────────────────────────────────────
@@ -670,7 +787,7 @@ class DataPembeliResource extends Resource
                                 ->money('IDR'),
                         ]),
 
-                    Infolists\Components\Separator::make(),
+                    
 
                     Infolists\Components\TextEntry::make('grand_total')
                         ->label('TOTAL PEMBAYARAN')
