@@ -25,15 +25,12 @@ class DataPembeliResource extends Resource
     protected static ?string $navigationGroup = 'Manajemen Pesanan';
     protected static ?int $navigationSort = 1;
 
-    /**
-     * Form hanya untuk update status dan catatan admin
-     */
     public static function form(Form $form): Form
     {
         return $form->schema([
-            // Status Management Section - Primary focus for admin
-            Forms\Components\Section::make('Manajemen Status Pesanan')
-                ->description('Update status pesanan dan kelola proses pengiriman')
+            // ── Status & Resi ─────────────────────────────────────────
+            Forms\Components\Section::make('Status & Nomor Resi')
+                ->description('Kelola status pesanan dan nomor resi pengiriman')
                 ->icon('heroicon-o-cog-6-tooth')
                 ->schema([
                     Forms\Components\Grid::make(2)
@@ -43,9 +40,8 @@ class DataPembeliResource extends Resource
                                 ->options(self::getOrderStatuses())
                                 ->required()
                                 ->native(false)
-                                ->live() // Real-time updates
-                                ->afterStateUpdated(function ($state, $old, $livewire) {
-                                    // Auto-notify status change
+                                ->live()
+                                ->afterStateUpdated(function ($state, $old) {
                                     if ($state !== $old && $old !== null) {
                                         Notification::make()
                                             ->title('Status berhasil diperbarui')
@@ -53,12 +49,14 @@ class DataPembeliResource extends Resource
                                             ->send();
                                     }
                                 }),
-                            
-                            Forms\Components\DateTimePicker::make('status_updated_at')
-                                ->label('Waktu Update Status')
-                                ->default(now())
+
+                            Forms\Components\TextInput::make('no_resi')
+                                ->label('Nomor Resi JNE')
+                                ->placeholder('Otomatis terisi setelah order diproses')
                                 ->disabled()
-                                ->dehydrated(false),
+                                ->dehydrated(false)
+                                ->suffixIcon('heroicon-o-truck')
+                                ->helperText('Resi digenerate otomatis oleh sistem'),
                         ]),
 
                     Forms\Components\Textarea::make('admin_notes')
@@ -66,109 +64,115 @@ class DataPembeliResource extends Resource
                         ->placeholder('Tambahkan catatan internal untuk tim...')
                         ->rows(3)
                         ->columnSpanFull(),
-                ])
-                ->collapsible(),
+                ]),
 
-            // Customer Information - Read Only Display
+            // ── Data Pembeli ───────────────────────────────────────────
             Forms\Components\Section::make('Data Pembeli')
-                ->description('Informasi otomatis dari sistem checkout')
                 ->icon('heroicon-o-user-circle')
                 ->schema([
-                    Forms\Components\Grid::make(2)
+                    Forms\Components\Grid::make(3)
                         ->schema([
                             Forms\Components\TextInput::make('name')
                                 ->label('Nama Pembeli')
                                 ->disabled()
                                 ->dehydrated(false),
-                            
+
+                            Forms\Components\TextInput::make('email')
+                                ->label('Email')
+                                ->disabled()
+                                ->dehydrated(false),
+
                             Forms\Components\TextInput::make('phone')
                                 ->label('Nomor Telepon')
                                 ->disabled()
                                 ->dehydrated(false)
                                 ->suffixAction(
                                     Forms\Components\Actions\Action::make('whatsapp')
-                                        ->icon('heroicon-o-chat-bubble-bottom-center-text')  
+                                        ->icon('heroicon-o-chat-bubble-bottom-center-text')
                                         ->url(fn ($record) => "https://wa.me/" . preg_replace('/[^0-9]/', '', $record?->phone))
                                         ->openUrlInNewTab()
-                                        ->tooltip('Buka WhatsApp')
+                                        ->tooltip('Chat WhatsApp')
                                 ),
                         ]),
                 ])
                 ->collapsible()
                 ->collapsed(),
 
-            // Shipping Address - Read Only
+            // ── Alamat Pengiriman ──────────────────────────────────────
             Forms\Components\Section::make('Alamat Pengiriman')
-                ->description('Alamat tujuan pengiriman dari customer')
                 ->icon('heroicon-o-map-pin')
                 ->schema([
-                    Forms\Components\Textarea::make('full_address')
-                        ->label('Alamat Lengkap')
+                    Forms\Components\Textarea::make('address')
+                        ->label('Alamat')
                         ->disabled()
                         ->dehydrated(false)
-                        ->rows(3),
-                    
+                        ->rows(2)
+                        ->columnSpanFull(),
+
                     Forms\Components\Grid::make(4)
                         ->schema([
-                            Forms\Components\TextInput::make('province')
-                                ->label('Provinsi')
+                            Forms\Components\TextInput::make('subdistrict')
+                                ->label('Kelurahan')
                                 ->disabled()
                                 ->dehydrated(false),
-                            
-                            Forms\Components\TextInput::make('regency')
-                                ->label('Kab/Kota')
-                                ->disabled()
-                                ->dehydrated(false),
-                            
+
                             Forms\Components\TextInput::make('district')
                                 ->label('Kecamatan')
                                 ->disabled()
                                 ->dehydrated(false),
-                            
-                            Forms\Components\TextInput::make('zip_code')
-                                ->label('Kode Pos')
+
+                            Forms\Components\TextInput::make('regency')
+                                ->label('Kab/Kota')
+                                ->disabled()
+                                ->dehydrated(false),
+
+                            Forms\Components\TextInput::make('province')
+                                ->label('Provinsi')
                                 ->disabled()
                                 ->dehydrated(false),
                         ]),
+
+                    Forms\Components\TextInput::make('zip_code')
+                        ->label('Kode Pos')
+                        ->disabled()
+                        ->dehydrated(false),
                 ])
                 ->collapsible()
                 ->collapsed(),
 
-            // Order Details - Read Only
+            // ── Detail Pesanan ─────────────────────────────────────────
             Forms\Components\Section::make('Detail Pesanan')
-                ->description('Informasi otomatis dari proses checkout')
                 ->icon('heroicon-o-shopping-cart')
                 ->schema([
                     Forms\Components\Grid::make(3)
                         ->schema([
+                            Forms\Components\TextInput::make('order_number')
+                                ->label('Nomor Order')
+                                ->disabled()
+                                ->dehydrated(false),
+
                             Forms\Components\Select::make('payment_method')
                                 ->label('Metode Pembayaran')
                                 ->options(self::getPaymentMethods())
                                 ->disabled()
                                 ->dehydrated(false),
-                            
+
                             Forms\Components\Select::make('shipping_method')
                                 ->label('Metode Pengiriman')
                                 ->options(self::getShippingMethods())
                                 ->disabled()
                                 ->dehydrated(false),
-                            
-                            Forms\Components\TextInput::make('total_items')
-                                ->label('Jumlah Item')
-                                ->disabled()
-                                ->dehydrated(false)
-                                ->suffix(' pcs'),
                         ]),
-                    
+
                     Forms\Components\Grid::make(2)
                         ->schema([
                             Forms\Components\Toggle::make('use_insurance')
                                 ->label('Menggunakan Asuransi')
                                 ->disabled()
                                 ->dehydrated(false),
-                            
+
                             Forms\Components\Toggle::make('is_buy_now')
-                                ->label('Pembelian Langsung')
+                                ->label('Pembelian Langsung (Buy Now)')
                                 ->disabled()
                                 ->dehydrated(false),
                         ]),
@@ -176,12 +180,11 @@ class DataPembeliResource extends Resource
                 ->collapsible()
                 ->collapsed(),
 
-            // Price Summary - Read Only
+            // ── Ringkasan Pembayaran ───────────────────────────────────
             Forms\Components\Section::make('Ringkasan Pembayaran')
-                ->description('Detail biaya dari sistem checkout')
                 ->icon('heroicon-o-banknotes')
                 ->schema([
-                    Forms\Components\Grid::make(3)
+                    Forms\Components\Grid::make(4)
                         ->schema([
                             Forms\Components\TextInput::make('subtotal_before_voucher')
                                 ->label('Subtotal Produk')
@@ -189,14 +192,14 @@ class DataPembeliResource extends Resource
                                 ->dehydrated(false)
                                 ->prefix('Rp ')
                                 ->formatStateUsing(fn ($state) => number_format($state ?? 0)),
-                            
+
                             Forms\Components\TextInput::make('total_voucher_discount')
                                 ->label('Diskon Voucher')
                                 ->disabled()
                                 ->dehydrated(false)
                                 ->prefix('Rp ')
                                 ->formatStateUsing(fn ($state) => number_format($state ?? 0)),
-                            
+
                             Forms\Components\TextInput::make('shipping_cost')
                                 ->label('Biaya Pengiriman')
                                 ->disabled()
@@ -204,25 +207,28 @@ class DataPembeliResource extends Resource
                                 ->prefix('Rp ')
                                 ->formatStateUsing(fn ($state) => number_format($state ?? 0)),
 
-                            
-                                
+                            Forms\Components\TextInput::make('insurance_cost')
+                                ->label('Biaya Asuransi')
+                                ->disabled()
+                                ->dehydrated(false)
+                                ->prefix('Rp ')
+                                ->formatStateUsing(fn ($state) => number_format($state ?? 0)),
                         ]),
-                    
+
                     Forms\Components\TextInput::make('grand_total')
-                        ->label('Total Pembayaran')
+                        ->label('TOTAL TAGIHAN')
                         ->disabled()
                         ->dehydrated(false)
                         ->prefix('Rp ')
                         ->formatStateUsing(fn ($state) => number_format($state ?? 0))
-                        ->extraAttributes(['class' => 'font-bold text-lg'])
+                        ->extraAttributes(['class' => 'font-bold text-xl'])
                         ->columnSpanFull(),
                 ])
                 ->collapsible()
                 ->collapsed(),
 
-            // Customer Notes - Read Only
+            // ── Catatan Pembeli ────────────────────────────────────────
             Forms\Components\Section::make('Catatan Pembeli')
-                ->description('Catatan khusus dari customer')
                 ->icon('heroicon-o-chat-bubble-left-ellipsis')
                 ->schema([
                     Forms\Components\Textarea::make('notes')
@@ -237,74 +243,63 @@ class DataPembeliResource extends Resource
         ]);
     }
 
-    /**
-     * Table untuk monitoring pesanan masuk
-     */
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-
-            Tables\Columns\TextColumn::make('no_resi')
-                ->label('No Resi')
-                ->placeholder('Belum ada')
-                ->searchable()
-                ->copyable()
-                ->icon('heroicon-o-truck')
-                ->toggleable(),
-
-                // Order ID atau timestamp
-                Tables\Columns\TextColumn::make('id')
-                    ->label('ID Pesanan')
+                Tables\Columns\TextColumn::make('order_number')
+                    ->label('No. Order')
                     ->searchable()
                     ->sortable()
-                    ->prefix('#')
+                    ->copyable()
                     ->weight('bold')
                     ->size('sm'),
 
-                // Customer info
                 Tables\Columns\TextColumn::make('name')
                     ->label('Pembeli')
                     ->searchable()
                     ->sortable()
-                    ->icon('heroicon-o-user')
-                    ->description(fn ($record) => $record->phone)
                     ->wrap(),
 
-                // Status dengan priority visual
+                Tables\Columns\TextColumn::make('regency')
+                    ->label('Kota Tujuan')
+                    ->searchable()
+                    ->size('sm')
+                    ->description(fn ($record) => $record->province),
+
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
                     ->colors([
-                        'danger' => 'pending',
-                        'warning' => 'paid', 
-                        'info' => 'processing',
+                        'danger'  => 'pending',
+                        'warning' => 'paid',
+                        'info'    => 'processing',
                         'primary' => 'shipped',
                         'success' => 'delivered',
-                        'gray' => 'cancelled',
+                        'gray'    => 'cancelled',
                     ])
-                    ->icons([
-                        'heroicon-o-clock' => 'pending',
-                        'heroicon-o-credit-card' => 'paid',
-                        'heroicon-o-cog-6-tooth' => 'processing',
-                        'heroicon-o-truck' => 'shipped',
-                        'heroicon-o-check-circle' => 'delivered',
-                        'heroicon-o-x-circle' => 'cancelled',
-                    ])
-                    ->formatStateUsing(fn (string $state): string => 
+                    ->formatStateUsing(fn (string $state): string =>
                         self::getOrderStatuses()[$state] ?? $state
                     ),
 
-                // Payment method
                 Tables\Columns\TextColumn::make('payment_method')
                     ->label('Pembayaran')
-                    ->formatStateUsing(fn (string $state): string => 
-                        self::getPaymentMethods()[$state] ?? $state
+                    ->formatStateUsing(fn (string $state): string =>
+                        self::getPaymentMethods()[$state] ?? strtoupper($state)
                     )
                     ->badge()
-                    ->color('gray')
+                    ->color('info')
                     ->size('sm'),
 
-                // Grand total with prominence
+                Tables\Columns\TextColumn::make('no_resi')
+                    ->label('No Resi')
+                    ->placeholder('—')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Nomor resi disalin!')
+                    ->icon('heroicon-o-truck')
+                    ->color(fn ($record) => $record->no_resi ? 'success' : 'gray')
+                    ->size('sm'),
+
                 Tables\Columns\TextColumn::make('grand_total')
                     ->label('Total')
                     ->money('IDR')
@@ -314,25 +309,6 @@ class DataPembeliResource extends Resource
                     ->color('success')
                     ->size('sm'),
 
-                // Order type
-                Tables\Columns\IconColumn::make('is_buy_now')
-                    ->label('Tipe')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-bolt')
-                    ->falseIcon('heroicon-o-shopping-cart')
-                    ->trueColor('warning')
-                    ->falseColor('info')
-                    ->tooltip(fn ($record) => $record->is_buy_now ? 'Buy Now' : 'Keranjang'),
-
-                // Location info
-                Tables\Columns\TextColumn::make('regency')
-                    ->label('Kota Tujuan')
-                    ->icon('heroicon-o-map-pin')
-                    ->searchable()
-                    ->toggleable()
-                    ->size('sm'),
-
-                // Time info
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Waktu Pesan')
                     ->dateTime('d/m H:i')
@@ -342,26 +318,22 @@ class DataPembeliResource extends Resource
                     ->size('sm'),
             ])
             ->filters([
-                // Status filter dengan counter
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options(self::getOrderStatuses())
                     ->multiple()
                     ->preload(),
 
-                // Payment method filter
                 Tables\Filters\SelectFilter::make('payment_method')
                     ->label('Metode Pembayaran')
                     ->options(self::getPaymentMethods())
                     ->multiple(),
 
-                // Today's orders
                 Tables\Filters\Filter::make('today')
                     ->label('Pesanan Hari Ini')
                     ->query(fn (Builder $query): Builder => $query->whereDate('created_at', today()))
                     ->toggle(),
 
-                // This week orders
                 Tables\Filters\Filter::make('this_week')
                     ->label('Minggu Ini')
                     ->query(fn (Builder $query): Builder => $query->whereBetween('created_at', [
@@ -370,24 +342,23 @@ class DataPembeliResource extends Resource
                     ]))
                     ->toggle(),
 
-                // High value orders
+                Tables\Filters\Filter::make('no_resi_empty')
+                    ->label('Belum Ada Resi')
+                    ->query(fn (Builder $query): Builder => $query->whereNull('no_resi'))
+                    ->toggle(),
+
                 Tables\Filters\Filter::make('high_value')
                     ->label('Pesanan > 500K')
                     ->query(fn (Builder $query): Builder => $query->where('grand_total', '>', 500000))
                     ->toggle(),
 
-                // Buy now orders
                 Tables\Filters\TernaryFilter::make('is_buy_now')
                     ->label('Tipe Pembelian')
                     ->trueLabel('Buy Now')
                     ->falseLabel('Keranjang')
                     ->native(false),
             ])
-            ->headerActions([
-                // Quick stats or export actions could go here
-            ])
             ->actions([
-                // Quick status update actions
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('mark_paid')
                         ->label('Tandai Dibayar')
@@ -398,11 +369,11 @@ class DataPembeliResource extends Resource
                         ->action(function ($record) {
                             $record->update(['status' => 'paid']);
                             Notification::make()
-                                ->title('Status berhasil diupdate ke "Dibayar"')
+                                ->title('Status diupdate ke "Sudah Dibayar"')
                                 ->success()
                                 ->send();
                         }),
-                    
+
                     Tables\Actions\Action::make('mark_processing')
                         ->label('Mulai Proses')
                         ->icon('heroicon-o-cog-6-tooth')
@@ -416,9 +387,9 @@ class DataPembeliResource extends Resource
                                 ->success()
                                 ->send();
                         }),
-                    
+
                     Tables\Actions\Action::make('mark_shipped')
-                        ->label('Kirim')
+                        ->label('Tandai Dikirim')
                         ->icon('heroicon-o-truck')
                         ->color('primary')
                         ->visible(fn ($record) => $record->status === 'processing')
@@ -426,13 +397,43 @@ class DataPembeliResource extends Resource
                         ->action(function ($record) {
                             $record->update(['status' => 'shipped']);
                             Notification::make()
-                                ->title('Pesanan dikirim')
+                                ->title('Pesanan ditandai dikirim')
                                 ->success()
                                 ->send();
                         }),
+
+                    Tables\Actions\Action::make('mark_delivered')
+                        ->label('Tandai Diterima')
+                        ->icon('heroicon-o-check-badge')
+                        ->color('success')
+                        ->visible(fn ($record) => $record->status === 'shipped')
+                        ->requiresConfirmation()
+                        ->action(function ($record) {
+                            $record->update(['status' => 'delivered']);
+                            Notification::make()
+                                ->title('Pesanan sudah diterima')
+                                ->success()
+                                ->send();
+                        }),
+
+                    Tables\Actions\Action::make('cancel_order')
+                        ->label('Batalkan Pesanan')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->visible(fn ($record) => !in_array($record->status, ['delivered', 'cancelled']))
+                        ->requiresConfirmation()
+                        ->modalHeading('Batalkan Pesanan?')
+                        ->modalDescription('Tindakan ini tidak dapat dibatalkan.')
+                        ->action(function ($record) {
+                            $record->update(['status' => 'cancelled']);
+                            Notification::make()
+                                ->title('Pesanan dibatalkan')
+                                ->danger()
+                                ->send();
+                        }),
                 ])
-                ->label('Quick Actions')
-                ->icon('heroicon-o-bolt')
+                ->label('Aksi')
+                ->icon('heroicon-o-ellipsis-vertical')
                 ->size('sm')
                 ->color('gray'),
 
@@ -442,7 +443,6 @@ class DataPembeliResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    // Bulk status updates
                     Tables\Actions\BulkAction::make('bulk_paid')
                         ->label('Tandai Dibayar')
                         ->icon('heroicon-o-check-circle')
@@ -451,13 +451,13 @@ class DataPembeliResource extends Resource
                         ->action(function ($records) {
                             $records->each->update(['status' => 'paid']);
                             Notification::make()
-                                ->title(count($records) . ' pesanan ditandai sebagai dibayar')
+                                ->title(count($records) . ' pesanan ditandai dibayar')
                                 ->success()
                                 ->send();
                         }),
-                    
+
                     Tables\Actions\BulkAction::make('bulk_processing')
-                        ->label('Mulai Proses')
+                        ->label('Mulai Proses Semua')
                         ->icon('heroicon-o-cog-6-tooth')
                         ->color('info')
                         ->requiresConfirmation()
@@ -468,7 +468,7 @@ class DataPembeliResource extends Resource
                                 ->success()
                                 ->send();
                         }),
-                    
+
                     Tables\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation(),
                 ]),
@@ -476,46 +476,52 @@ class DataPembeliResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->striped()
             ->paginated([25, 50, 100])
-            ->poll('30s') // Auto refresh every 30 seconds
+            ->poll('30s')
             ->persistFiltersInSession()
             ->persistSortInSession();
     }
 
-    /**
-     * Detailed view untuk monitoring pesanan
-     */
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist->schema([
-            // Order Header dengan status prominent
-            Infolists\Components\Section::make('Status Pesanan')
+            // ── Header Status ──────────────────────────────────────────
+            Infolists\Components\Section::make('Ringkasan Pesanan')
                 ->icon('heroicon-o-clipboard-document-check')
                 ->schema([
-                    Infolists\Components\Grid::make(3)
+                    Infolists\Components\Grid::make(4)
                         ->schema([
-                            Infolists\Components\TextEntry::make('id')
-                                ->label('ID Pesanan')
-                                ->prefix('#')
+                            Infolists\Components\TextEntry::make('order_number')
+                                ->label('Nomor Order')
+                                ->weight('bold')
                                 ->size('lg')
-                                ->weight('bold'),
-                            
+                                ->copyable(),
+
                             Infolists\Components\TextEntry::make('status')
-                                ->label('Status Saat Ini')
+                                ->label('Status')
                                 ->badge()
                                 ->size('lg')
                                 ->color(fn (string $state): string => match ($state) {
-                                    'pending' => 'danger',
-                                    'paid' => 'warning',
+                                    'pending'    => 'danger',
+                                    'paid'       => 'warning',
                                     'processing' => 'info',
-                                    'shipped' => 'primary',
-                                    'delivered' => 'success',
-                                    'cancelled' => 'gray',
-                                    default => 'gray',
+                                    'shipped'    => 'primary',
+                                    'delivered'  => 'success',
+                                    'cancelled'  => 'gray',
+                                    default      => 'gray',
                                 })
-                                ->formatStateUsing(fn (string $state): string => 
+                                ->formatStateUsing(fn (string $state): string =>
                                     self::getOrderStatuses()[$state] ?? $state
                                 ),
-                            
+
+                            Infolists\Components\TextEntry::make('no_resi')
+                                ->label('Nomor Resi JNE')
+                                ->placeholder('Belum digenerate')
+                                ->copyable()
+                                ->copyMessage('Resi disalin!')
+                                ->icon('heroicon-o-truck')
+                                ->color(fn ($record) => $record->no_resi ? 'success' : 'gray')
+                                ->weight('bold'),
+
                             Infolists\Components\TextEntry::make('created_at')
                                 ->label('Waktu Pesan')
                                 ->dateTime('d F Y, H:i')
@@ -523,68 +529,77 @@ class DataPembeliResource extends Resource
                         ]),
                 ]),
 
-            // Customer Information
+            // ── Informasi Pembeli ──────────────────────────────────────
             Infolists\Components\Section::make('Informasi Pembeli')
                 ->icon('heroicon-o-user-circle')
                 ->schema([
-                    Infolists\Components\Grid::make(2)
+                    Infolists\Components\Grid::make(3)
                         ->schema([
                             Infolists\Components\TextEntry::make('name')
-                                ->label('Nama Pembeli')
+                                ->label('Nama')
                                 ->icon('heroicon-o-user')
-                                ->size('lg')
                                 ->weight('medium')
                                 ->copyable(),
-                            
+
+                            Infolists\Components\TextEntry::make('email')
+                                ->label('Email')
+                                ->icon('heroicon-o-envelope')
+                                ->copyable(),
+
                             Infolists\Components\TextEntry::make('phone')
-                                ->label('Nomor Telepon')
+                                ->label('Telepon')
                                 ->icon('heroicon-o-phone')
                                 ->copyable()
                                 ->url(fn ($record) => "https://wa.me/" . preg_replace('/[^0-9]/', '', $record->phone))
                                 ->openUrlInNewTab()
                                 ->color('success'),
                         ]),
-                    
+
                     Infolists\Components\TextEntry::make('full_address')
-                        ->label('Alamat Pengiriman Lengkap')
+                        ->label('Alamat Lengkap')
                         ->icon('heroicon-o-map-pin')
                         ->columnSpanFull()
                         ->copyable(),
                 ]),
 
-            // Payment & Shipping Details
-            Infolists\Components\Section::make('Detail Pembayaran & Pengiriman')
+            // ── Pembayaran & Pengiriman ────────────────────────────────
+            Infolists\Components\Section::make('Pembayaran & Pengiriman')
                 ->icon('heroicon-o-credit-card')
                 ->schema([
-                    Infolists\Components\Grid::make(2)
+                    Infolists\Components\Grid::make(3)
                         ->schema([
                             Infolists\Components\TextEntry::make('payment_method')
                                 ->label('Metode Pembayaran')
-                                ->formatStateUsing(fn (string $state): string => 
-                                    self::getPaymentMethods()[$state] ?? $state
+                                ->formatStateUsing(fn (string $state): string =>
+                                    self::getPaymentMethods()[$state] ?? strtoupper($state)
                                 )
                                 ->badge()
-                                ->color('info')
-                                ->icon('heroicon-o-credit-card'),
-                            
+                                ->color('info'),
+
                             Infolists\Components\TextEntry::make('shipping_method')
                                 ->label('Metode Pengiriman')
-                                ->formatStateUsing(fn (string $state): string => 
-                                    self::getShippingMethods()[$state] ?? $state
+                                ->formatStateUsing(fn (string $state): string =>
+                                    self::getShippingMethods()[$state] ?? strtoupper($state)
                                 )
                                 ->badge()
-                                ->color('primary')
-                                ->icon('heroicon-o-truck'),
+                                ->color('primary'),
+
+                            Infolists\Components\TextEntry::make('jne_service_code')
+                                ->label('Layanan JNE')
+                                ->placeholder('—')
+                                ->badge()
+                                ->color('warning'),
                         ]),
-                    
+
                     Infolists\Components\Grid::make(2)
                         ->schema([
                             Infolists\Components\IconEntry::make('use_insurance')
                                 ->label('Asuransi Pengiriman')
                                 ->boolean()
                                 ->trueIcon('heroicon-o-shield-check')
-                                ->falseIcon('heroicon-o-shield-exclamation'),
-                            
+                                ->falseIcon('heroicon-o-shield-exclamation')
+                                ->trueColor('success'),
+
                             Infolists\Components\IconEntry::make('is_buy_now')
                                 ->label('Tipe Pembelian')
                                 ->boolean()
@@ -595,7 +610,7 @@ class DataPembeliResource extends Resource
                         ]),
                 ]),
 
-            // Items Detail
+            // ── Detail Produk ──────────────────────────────────────────
             Infolists\Components\Section::make('Detail Produk')
                 ->icon('heroicon-o-cube')
                 ->schema([
@@ -608,19 +623,19 @@ class DataPembeliResource extends Resource
                                         ->label('Nama Produk')
                                         ->weight('medium')
                                         ->columnSpan(2),
-                                    
+
                                     Infolists\Components\TextEntry::make('sku')
                                         ->label('SKU')
-                                        ->placeholder('N/A')
+                                        ->placeholder('—')
                                         ->color('gray')
                                         ->size('sm'),
-                                    
+
                                     Infolists\Components\TextEntry::make('quantity')
                                         ->label('Qty')
                                         ->suffix(' pcs')
                                         ->weight('medium')
                                         ->alignCenter(),
-                                    
+
                                     Infolists\Components\TextEntry::make('price')
                                         ->label('Harga')
                                         ->money('IDR')
@@ -631,36 +646,32 @@ class DataPembeliResource extends Resource
                         ->contained(false),
                 ]),
 
-            // Financial Summary
+            // ── Ringkasan Keuangan ─────────────────────────────────────
             Infolists\Components\Section::make('Ringkasan Keuangan')
                 ->icon('heroicon-o-banknotes')
                 ->schema([
-                    Infolists\Components\Grid::make(2)
+                    Infolists\Components\Grid::make(4)
                         ->schema([
                             Infolists\Components\TextEntry::make('subtotal_before_voucher')
                                 ->label('Subtotal Produk')
-                                ->money('IDR')
-                                ->size('lg'),
-                            
+                                ->money('IDR'),
+
                             Infolists\Components\TextEntry::make('total_voucher_discount')
                                 ->label('Diskon Voucher')
                                 ->money('IDR')
-                                ->color('success')
-                                ->prefix('- ')
-                                ->visible(fn ($record) => $record->total_voucher_discount > 0),
-                            
+                                ->color('success'),
+
                             Infolists\Components\TextEntry::make('shipping_cost')
                                 ->label('Biaya Pengiriman')
                                 ->money('IDR'),
-                            
+
                             Infolists\Components\TextEntry::make('insurance_cost')
                                 ->label('Biaya Asuransi')
-                                ->money('IDR')
-                                ->visible(fn ($record) => $record->use_insurance),
+                                ->money('IDR'),
                         ]),
-                    
+
                     Infolists\Components\Separator::make(),
-                    
+
                     Infolists\Components\TextEntry::make('grand_total')
                         ->label('TOTAL PEMBAYARAN')
                         ->money('IDR')
@@ -670,28 +681,28 @@ class DataPembeliResource extends Resource
                         ->columnSpanFull(),
                 ]),
 
-            // Notes & Timeline
+            // ── Catatan & Riwayat ──────────────────────────────────────
             Infolists\Components\Section::make('Catatan & Riwayat')
                 ->icon('heroicon-o-document-text')
                 ->schema([
                     Infolists\Components\TextEntry::make('notes')
-                        ->label('Catatan dari Pembeli')
-                        ->placeholder('Tidak ada catatan khusus')
+                        ->label('Catatan Pembeli')
+                        ->placeholder('Tidak ada catatan')
                         ->columnSpanFull()
                         ->color('gray'),
-                    
+
                     Infolists\Components\TextEntry::make('admin_notes')
-                        ->label('Catatan Admin Internal')
+                        ->label('Catatan Admin')
                         ->placeholder('Belum ada catatan admin')
                         ->columnSpanFull()
                         ->color('info'),
-                    
+
                     Infolists\Components\Grid::make(2)
                         ->schema([
                             Infolists\Components\TextEntry::make('created_at')
-                                ->label('Waktu Pesanan Masuk')
+                                ->label('Waktu Order Masuk')
                                 ->dateTime('l, d F Y H:i:s'),
-                            
+
                             Infolists\Components\TextEntry::make('updated_at')
                                 ->label('Terakhir Diupdate')
                                 ->dateTime('l, d F Y H:i:s')
@@ -703,94 +714,70 @@ class DataPembeliResource extends Resource
         ]);
     }
 
-    /**
-     * Payment methods yang tersedia
-     */
     protected static function getPaymentMethods(): array
     {
         return [
-            'bca' => 'BCA Virtual Account',
-            'mandiri' => 'Mandiri Virtual Account', 
-            'bri' => 'BRI Virtual Account',
-            'bni' => 'BNI Virtual Account',
-            'alfamart' => 'Alfamart/Alfamidi',
-            'indomaret' => 'Indomaret',
-            'gopay' => 'GoPay',
-            'ovo' => 'OVO',
-            'dana' => 'DANA',
-            'shopeepay' => 'ShopeePay',
-            'linkaja' => 'LinkAja',
+            'cod'        => 'Cash on Delivery',
+            'mandiri'    => 'Mandiri Virtual Account',
+            'bri'        => 'BRI Virtual Account',
+            'bni'        => 'BNI Virtual Account',
+            'permata'    => 'Permata Virtual Account',
+            'CIMB NIAGA' => 'CIMB Niaga Virtual Account',
+            'gopay'      => 'GoPay',
+            'qris'       => 'QRIS',
         ];
     }
 
-    /**
-     * Shipping methods yang tersedia
-     */
     protected static function getShippingMethods(): array
     {
         return [
-            'reguler' => 'Pengiriman Reguler (Gratis)',
-            'ninja' => 'Ninja Xpress',
-            'jne' => 'JNE',
-            'pos' => 'Pos Indonesia', 
-            'tiki' => 'TIKI',
-            'sicepat' => 'SiCepat',
-            'jnt' => 'J&T Express',
-            'anteraja' => 'AnterAja',
-            'gosend' => 'GoSend',
-            'grab' => 'GrabExpress',
+            'reguler' => 'Reguler (Gratis)',
+            'ninja'   => 'Ninja Xpress',
+            'jne'     => 'JNE',
         ];
     }
 
-    /**
-     * Status pesanan yang tersedia
-     */
     protected static function getOrderStatuses(): array
     {
         return [
-            'pending' => 'Menunggu Pembayaran',
-            'paid' => 'Sudah Dibayar',
+            'pending'    => 'Menunggu Pembayaran',
+            'paid'       => 'Sudah Dibayar',
             'processing' => 'Sedang Diproses',
-            'shipped' => 'Dalam Pengiriman',
-            'delivered' => 'Sudah Diterima',
-            'cancelled' => 'Dibatalkan',
+            'shipped'    => 'Dalam Pengiriman',
+            'delivered'  => 'Sudah Diterima',
+            'cancelled'  => 'Dibatalkan',
         ];
     }
 
     public static function getRelations(): array
     {
-        return [
-            // Relations untuk items, payments, shipments dll
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListDataPembelis::route('/'),
-            'edit' => Pages\EditDataPembeli::route('/{record}/edit'),
-            // Tidak ada create & view page karena data otomatis dari sistem
+            'edit'  => Pages\EditDataPembeli::route('/{record}/edit'),
         ];
     }
 
-    /**
-     * Global search untuk quick find
-     */
     public static function getGlobalSearchAttributes(): array
     {
-        return ['name', 'phone', 'id'];
+        return ['name', 'phone', 'order_number', 'no_resi'];
     }
 
     public static function getGlobalSearchResultTitle($record): string
     {
-        return "Pesanan #{$record->id} - {$record->name}";
+        return "Pesanan {$record->order_number} - {$record->name}";
     }
 
     public static function getGlobalSearchResultDetails($record): array
     {
         return [
             'Status' => self::getOrderStatuses()[$record->status] ?? $record->status,
-            'Total' => 'Rp ' . number_format($record->grand_total),
+            'Total'  => 'Rp ' . number_format($record->grand_total),
+            'Resi'   => $record->no_resi ?? 'Belum ada',
             'Tanggal' => $record->created_at->format('d M Y'),
         ];
     }

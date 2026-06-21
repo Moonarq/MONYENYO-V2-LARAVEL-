@@ -18,7 +18,7 @@ class JneService
         $payload = [
             'username'               => env('JNE_USERNAME'),
             'api_key'                => env('JNE_API_KEY'),
-            'OLSHOP_BRANCH'          => env('JNE_BRANCH', 'BDO10000'),
+            'OLSHOP_BRANCH'          => env('JNE_BRANCH', 'BDO000'),
             'OLSHOP_CUST'            => env('JNE_CUST_NO'),
             'OLSHOP_ORDERID'         => $order->order_number,
             'OLSHOP_SHIPPER_NAME'    => env('JNE_SHIPPER_NAME'),
