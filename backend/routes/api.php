@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\MidtransController;
+use App\Http\Controllers\Api\JneAirwaybillController;
 
 
 Route::get('/products', [ProductController::class, 'index']);
@@ -27,3 +28,7 @@ Route::prefix('checkout')->group(function () {
 Route::get('/shipping/jne', [JneController::class, 'price']);
 
 Route::post('/midtrans/token', [MidtransController::class, 'getToken']);
+
+
+Route::post('/jne/generate-airwaybill', [JneAirwaybillController::class, 'generate']);
+Route::post('/midtrans/webhook', [MidtransController::class, 'webhook']);

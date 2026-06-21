@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Services\JneService;
 use App\Http\Controllers\Controller;
 use App\Models\DataPembeli;
 use Illuminate\Http\Request;
@@ -84,6 +85,9 @@ class MidtransController extends Controller
                 'is_buy_now' => $orderData['is_buy_now'] ?? false,
                 'status' => 'pending',
                 'order_number' => $request->order_number,
+                'no_resi' => $request->no_resi ?? null,
+                'jne_destination_code' => $request->jne_destination_code ?? null,
+                'jne_service_code' => $request->jne_service_code ?? null,
             ]);
 
             return response()->json([
@@ -100,7 +104,48 @@ class MidtransController extends Controller
             ], 500);
         }
     }
+    
+public function webhook(Request $request)
+{
+    $serverKey = env('MIDTRANS_SERVER_KEY');
+    $orderId = $request->order_id;
+    $statusCode = $request->status_code;
+    $grossAmount = $request->gross_amount;
+    
+    // Verifikasi signature
+    $signatureKey = hash('sha512', $orderId . $statusCode . $grossAmount . $serverKey);
+    
+    if ($signatureKey !== $request->signature_key) {
+        return response()->json(['message' => 'Invalid signature'], 403);
+    }
 
+    $transactionStatus = $request->transaction_status;
+    $fraudStatus = $request->fraud_status ?? 'accept';
+
+    $order = DataPembeli::where('order_number', $orderId)->first();
+
+    if (!$order) {
+        return response()->json(['message' => 'Order not found'], 404);
+    }
+
+    // Cek status pembayaran
+    if ($transactionStatus === 'capture' && $fraudStatus === 'accept') {
+        $order->update(['status' => 'paid']);
+        JneService::generateAirwaybill($order);
+
+    } elseif ($transactionStatus === 'settlement') {
+        $order->update(['status' => 'paid']);
+        JneService::generateAirwaybill($order);
+
+    } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+        $order->update(['status' => 'cancelled']);
+
+    } elseif ($transactionStatus === 'pending') {
+        $order->update(['status' => 'pending']);
+    }
+
+    return response()->json(['message' => 'OK']);
+}
     private function getEnabledPayments($paymentMethod)
     {
         switch ($paymentMethod) {

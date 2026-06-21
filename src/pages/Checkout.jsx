@@ -555,7 +555,8 @@ const filteredServices = data.price.filter(service => {
 
       displayName: service.service_display,
 
-      destination_name: destinationInfo.name
+      destination_name: destinationInfo.name,
+      destination_code: destinationInfo.code
     };
   });
         
@@ -1369,7 +1370,8 @@ const filteredServices = data.price.filter(service => {
               service_display: selectedService.service_display,
               price: parseInt(selectedService.price),
               etd_from: selectedService.etd_from,
-              etd_thru: selectedService.etd_thru
+              etd_thru: selectedService.etd_thru,
+               destination_code: selectedService.destination_code ?? null,
             } : null
           },
           insurance: {
@@ -1411,10 +1413,13 @@ const filteredServices = data.price.filter(service => {
         })
 
         const codData = await codResponse.json()
+        
         console.log('FULL ERROR:', JSON.stringify(codData.errors, null, 2))
 console.log('COD Response Status:', codResponse.status)
 console.log('COD Response Data:', codData)
 console.log('COD Errors:', JSON.stringify(codData.errors, null, 2))
+console.log('COD Response:', codData)
+console.log('COD Error detail:', codData.error, 'Line:', codData.line, 'File:', codData.file)
 
 if (!codResponse.ok) {
   throw new Error(codData.message || `COD Checkout Error: ${codResponse.status}`)

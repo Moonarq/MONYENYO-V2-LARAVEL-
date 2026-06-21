@@ -203,6 +203,9 @@ class DataPembeliResource extends Resource
                                 ->dehydrated(false)
                                 ->prefix('Rp ')
                                 ->formatStateUsing(fn ($state) => number_format($state ?? 0)),
+
+                            
+                                
                         ]),
                     
                     Forms\Components\TextInput::make('grand_total')
@@ -241,6 +244,15 @@ class DataPembeliResource extends Resource
     {
         return $table
             ->columns([
+
+            Tables\Columns\TextColumn::make('no_resi')
+                ->label('No Resi')
+                ->placeholder('Belum ada')
+                ->searchable()
+                ->copyable()
+                ->icon('heroicon-o-truck')
+                ->toggleable(),
+
                 // Order ID atau timestamp
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID Pesanan')

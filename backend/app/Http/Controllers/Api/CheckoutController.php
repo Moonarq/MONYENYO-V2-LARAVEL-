@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Services\JneService;
 use App\Http\Controllers\Controller;
 use App\Models\DataPembeli;
 use Illuminate\Http\Request;
@@ -29,6 +30,7 @@ class CheckoutController extends Controller
             'shipping.method' => 'required|string|in:reguler,ninja,jne',
             'shipping.cost' => 'required|numeric|min:0',
             'shipping.isFree' => 'nullable|boolean',
+            'shipping.jneService' => 'nullable|array',
             'insurance.selected' => 'boolean',
             'insurance.cost' => 'required|numeric|min:0',
             
@@ -62,8 +64,17 @@ class CheckoutController extends Controller
             $validatedData = $validator->validated();
             
             $totalItems = collect($validatedData['items'])->sum('quantity');
+
+            // Generate order number
+            $orderNumber = 'ORD' . time();
+
+            // Ambil JNE service info
+            $jneService = $request->input('shipping.jneService');
             
             $dataPembeli = DataPembeli::create([
+                // Order Number
+                'order_number' => $orderNumber,
+
                 // Shipping Address
                 'name' => $validatedData['shippingAddress']['name'],
                 'email' => $validatedData['shippingAddress']['email'],
@@ -83,10 +94,14 @@ class CheckoutController extends Controller
                 'is_shipping_free' => $validatedData['shipping']['isFree'] ?? false,
                 'use_insurance' => $validatedData['insurance']['selected'] ?? false,
                 'insurance_cost' => $validatedData['insurance']['cost'],
+
+                // JNE Service
+                'jne_destination_code' => $jneService['destination_code'] ?? null,
+                'jne_service_code' => $jneService['service_code'] ?? null,
                 
                 // Items & Vouchers (JSON)
                 'items' => $validatedData['items'],
-                'vouchers' => $validatedData['vouchers'] ?? null,
+                'vouchers' => $request->input('vouchers') ?? null,
                 
                 // Pricing
                 'subtotal_before_voucher' => $validatedData['totals']['subtotalBeforeVoucher'],
@@ -100,13 +115,17 @@ class CheckoutController extends Controller
                 'is_buy_now' => $validatedData['isBuyNow'] ?? false,
                 'status' => 'pending'
             ]);
+                if ($validatedData['paymentMethod'] === 'cod') {
+                    JneService::generateAirwaybill($dataPembeli);
+                }
+                
 
             return response()->json([
                 'success' => true,
                 'message' => 'Checkout berhasil disimpan',
                 'data' => [
                     'id' => $dataPembeli->id,
-                    'order_number' => 'ORD-' . str_pad($dataPembeli->id, 6, '0', STR_PAD_LEFT),
+                    'order_number' => $dataPembeli->order_number,
                     'status' => $dataPembeli->status,
                     'grand_total' => $dataPembeli->grand_total
                 ]
@@ -116,6 +135,8 @@ class CheckoutController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat menyimpan data',
+                'line' => $e->getLine(),  // ← tambah ini
+                'file' => $e->getFile(),  // ← tambah ini
                 'error' => $e->getMessage()
             ], 500);
         }
