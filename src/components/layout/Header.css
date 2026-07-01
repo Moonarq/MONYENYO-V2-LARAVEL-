@@ -20,7 +20,7 @@
 
 @media (max-width: 768px) {
   .header.desktop-transparent .desktop-navbar-logo {
-    margin-top: -20px; /* FIXED: Changed from 15px to 0px */
+    margin-top: -20px;
   }
 }
 .header.desktop-solid .desktop-navbar-logo {
@@ -42,9 +42,9 @@
     left: 0;
     right: 0;
     background: transparent;
-    padding: 20px 0;
+    padding: 20px 0px; /* tambah padding kanan kiri */
     z-index: 1000;
-    zoom:0.9;
+    zoom: 0.9;
     transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
 }
 
@@ -70,10 +70,12 @@
     -webkit-backdrop-filter: blur(10px);
 }
 
+/* ===== FIX: Container layout seimbang ===== */
 .header .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 0px; /* padding konsisten kiri-kanan */
 }
 
 /* Mobile Left Section - Container for Hamburger and Cart */
@@ -86,7 +88,7 @@
 
 /* Mobile Cart Icon */
 .mobile-cart-icon {
-  font-size: 26px; /* dari 18px */
+  font-size: 26px;
   color: #ffffff;
   text-decoration: none;
   transition: color 0.3s ease;
@@ -94,10 +96,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px; /* dari 30px */
-  height: 36px; /* dari 30px */
+  width: 36px;
+  height: 36px;
 }
-
 
 .mobile-cart-icon:hover {
   color: #c59d5f;
@@ -107,8 +108,8 @@
 .header.desktop-transparent .mobile-cart-icon {
   color: #fff !important;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-  margin-left: 38px; /* Atur sesuai kebutuhan, misalnya 8px atau 10px */
-  margin-top: 35px; /* Atur sesuai kebutuhan, misalnya 8px atau 10px */
+  margin-left: 38px;
+  margin-top: 35px;
 }
 
 .header.desktop-solid .mobile-cart-icon {
@@ -116,23 +117,26 @@
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
   margin-right: 270px;
   margin-top: 1px;
-
-  font-size: 26px;   /* dari default 18px → sedikit lebih besar */
-  width: 34px;       /* dari 30px → tambah sedikit */
+  font-size: 26px;
+  width: 34px;
   height: 34px;
 }
-
 
 .header.show-on-scroll-up .mobile-cart-icon {
   color: #fff !important;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
 }
 
+/* ===== FIX: Hapus margin negatif, pakai flex sizing seimbang ===== */
 .social-icons {
     display: flex;
     gap: 15px;
-    margin-right: 40px;
-    margin-left: -99px;
+    /* FIX: margin-left dan margin-right di-reset ke 0
+       Dulu: margin-left: -99px; margin-right: 40px — menyebabkan tidak seimbang */
+    margin-left: -35px;
+    margin-right: 0;
+    /* Beri lebar tetap agar simetris dengan language-toggle di sisi kanan */
+    min-width: 100px;
 }
 
 .social-link {
@@ -150,6 +154,7 @@
 .nav-menu, .nav-menu-right {
     display: flex;
     gap: 40px;
+    margin-left: -60px;
 }
 
 .nav-link {
@@ -188,7 +193,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-left: 40px;
+    /* FIX: Hapus margin-left: 40px agar logo tetap di tengah secara natural */
+    margin-left: -90px;
 }
 
 .logo-icon {
@@ -214,6 +220,7 @@
     outline: none !important;
 }
 
+/* ===== FIX: language-toggle seimbang dengan social-icons ===== */
 .language-toggle {
     color: white;
     font-weight: 600;
@@ -221,7 +228,12 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-right: -99px;
+    /* FIX: margin-right di-reset ke 0
+       Dulu: margin-right: -99px — menarik ke kiri secara paksa */
+    margin-right: -35px;
+    /* Beri lebar tetap agar simetris dengan social-icons di sisi kiri */
+    min-width: 100px;
+    justify-content: flex-end;
 }
 
 /* Language toggle color for transparent and solid navbar */
@@ -277,8 +289,7 @@
     display: none;
 }
 
-/* Mobile Menu Overlay - All mobile menu styles unified in index.css only */
-
+/* Mobile Menu Overlay */
 .mobile-nav {
     display: flex;
     flex-direction: column;
@@ -360,7 +371,7 @@
     transform: translateY(-2px);
 }
 
-/* Garis bawah nav-link hanya untuk navbar solid, bukan transparan */
+/* Garis bawah nav-link hanya untuk navbar solid */
 .header.desktop-solid .nav-link.active::after,
 .header.desktop-solid .nav-link:hover::after {
     background: #8B4513;
@@ -371,7 +382,7 @@
     background: transparent !important;
 }
 
-/* React Router Link - remove default styling that causes white lines */
+/* React Router Link - remove default styling */
 .nav-logo a[href],
 .nav-logo Link,
 a.logo-text,
@@ -402,7 +413,6 @@ Link.logo-text {
     color: inherit !important;
 }
 
-/* Additional comprehensive logo link reset */
 .nav-logo a *,
 .nav-logo Link * {
     text-decoration: none !important;
@@ -411,8 +421,7 @@ Link.logo-text {
     outline: none !important;
 }
 
-/* Responsive header/navbar/mobile menu styles (media queries) akan dipindah juga ke sini */
-
+/* Responsive */
 @media (max-width: 768px) {
   .header .logo-text {
     font-size: 1.6rem;
@@ -424,7 +433,6 @@ Link.logo-text {
   }
 }
 
-/* Mobile responsive */
 @media (max-width: 768px) {    
     .header .logo-text {
         font-size: 1.6rem;
@@ -437,29 +445,25 @@ Link.logo-text {
         display: none !important;
     }
     
-    /* Show mobile left section only on mobile */
     .mobile-left-section {
         display: flex !important;
         align-items: center;
         gap: 12px;
     }
     
-    /* Hide desktop hamburger when mobile left section is active */
     .header .container > .hamburger-menu {
         display: none !important;
     }
     
-    /* Mobile hamburger menu styling adjustments */
     .mobile-left-section .hamburger-menu {
         display: flex !important;
         align-items: center;
         justify-content: center;
     }
     
-    /* Mobile hamburger span colors for different navbar states */
     .header.desktop-transparent .mobile-left-section .hamburger-menu span {
         background: #ffffff;
-         transform: translateY(-13px);
+        transform: translateY(-13px);
     }
     
     .header.desktop-solid .mobile-left-section .hamburger-menu span,
@@ -468,7 +472,6 @@ Link.logo-text {
     }
 }
 
-/* Hide mobile left section on desktop */
 @media (min-width: 769px) {
   .mobile-left-section {
     display: none !important;
@@ -480,6 +483,7 @@ Link.logo-text {
 .header.desktop-solid .cart-icon {
   color: #222 !important;
 }
+
 /* Cart Badge Notification Styles */
 .cart-badge {
   position: absolute;
@@ -503,7 +507,6 @@ Link.logo-text {
   padding: 0;
 }
 
-/* Desktop Cart Badge */
 .language-toggle .cart-icon {
   position: relative;
   display: inline-block;
@@ -513,7 +516,6 @@ Link.logo-text {
   /* Inherit base styles from .cart-badge */
 }
 
-/* Mobile Cart Badge */
 .mobile-cart-icon {
   position: relative;
   display: inline-flex !important;
@@ -523,7 +525,6 @@ Link.logo-text {
   /* Inherit base styles from .cart-badge */
 }
 
-/* Badge responsive adjustments */
 @media (max-width: 768px) {
   .cart-badge {
     width: 18px;
@@ -534,7 +535,6 @@ Link.logo-text {
   }
 }
 
-/* Badge animation */
 .cart-badge {
   animation: badge-appear 0.3s ease-out;
 }
@@ -553,7 +553,6 @@ Link.logo-text {
   }
 }
 
-/* Badge color variations */
 .cart-badge.new-item {
   background: #28a745;
   animation: badge-pulse 2s ease-in-out;
@@ -568,7 +567,6 @@ Link.logo-text {
   }
 }
 
-/* Badge for different navbar states */
 .header.desktop-transparent .cart-badge {
   border-color: rgba(255,255,255,0.8);
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -579,7 +577,6 @@ Link.logo-text {
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Ensure cart icon doesn't overflow */
 .language-toggle .cart-icon,
 .mobile-cart-icon {
   overflow: visible;

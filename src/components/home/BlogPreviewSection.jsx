@@ -7,7 +7,7 @@ const BlogPreviewSection = () => {
   const { t } = useLanguage()
 
  const featuredPost = {
-  image: '/images/promo.jpg',
+  image: '/images/promo1.jpg',
   category: t('Produk Baru'),
    title: t('Varian Baru: Banana Strudle Mini'),
   excerpt: t('Perkenalkan varian terbaru kami: Banana Strudle Mini dengan rasa pisang yang autentik dan tekstur lembut.'),
@@ -16,7 +16,7 @@ const BlogPreviewSection = () => {
 }
  const recentPosts = [
   {
-    image: '/images/promo1.jpg',
+    image: '/images/promo.jpg',
     category: t('Promo'),
     title: t('Weekend Sale – Diskon 20%'),
     date: 'Maret 8, 2024',
@@ -45,16 +45,15 @@ const BlogPreviewSection = () => {
   }
 ]
 
-  
-
   return (
     <section className="blog-preview-section" id="blogs">
       <div className="container">
         <div className="blog-preview-header">
-       <h2 className="blog-preview-title">{t('PROMO & BERITA TERBARU')}</h2>
-        <p className="blog-preview-description">
-          {t("Temukan promo menarik dan informasi terbaru dari Monyenyo untuk setiap momen spesial.")}
-        </p>
+          <span className="blog-preview-label">{t('KOLEKSI BLOGS KAMI')}</span>
+          <h2 className="blog-preview-title">{t('PROMO & BERITA TERBARU')}</h2>
+          <p className="blog-preview-description">
+            {t("Temukan promo menarik dan informasi terbaru dari Monyenyo untuk setiap momen spesial. Dapatkan tips, resep, dan berita kuliner ")}
+          </p>
         </div>
         
         <div className="blog-preview-grid">

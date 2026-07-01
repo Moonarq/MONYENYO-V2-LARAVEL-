@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../hooks/useLanguage'
 import './AboutSection.css'
-import aboutImg from '../../assets/images/about.png';
+import aboutImg from '../../assets/images/x.png';
 
 const AboutSection = () => {
   const { t } = useLanguage()

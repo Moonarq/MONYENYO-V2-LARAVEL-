@@ -335,7 +335,7 @@ const MenuDetail = () => {
                     <span className="discount-percentage">
                       {Math.round(item.discount_percentage)}%
                     </span>
-                    <span className="original-price">
+                    <span className="original-price-menu-detail">
                       Rp{Number(originalPrice).toLocaleString('id-ID')}
                     </span>
                   </div>

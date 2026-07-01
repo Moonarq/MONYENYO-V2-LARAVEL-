@@ -1,8 +1,8 @@
 import React from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
-import about1Img from '../../assets/images/about1.png';
-import about2Img from '../../assets/images/about2.png';
-import about3Img from '../../assets/images/about3.png';
+import about1Img from '../../assets/images/p.png';
+import about2Img from '../../assets/images/pp.png';
+import about3Img from '../../assets/images/ppp.png';
 
 const FreshSection = () => {
   const { t } = useLanguage()
@@ -21,7 +21,7 @@ const FreshSection = () => {
         <div className="fresh-grid">
           <div className="fresh-item">
             <div className="fresh-image">
-              <img src={about1Img} alt={t('Cheese Roll Cocol')} />
+              <img src={about3Img} alt={t('Cheese Roll Cocol')} />
             </div>
             <div className="fresh-content">
               <h3>{t('Cheese Roll Cocol')}</h3>

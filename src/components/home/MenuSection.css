@@ -6,38 +6,61 @@
 
 .menu-section-header {
     text-align: center;
-    margin-bottom: 60px;
+    max-width: 700px;
+    margin: 0 auto 60px;
 }
 
+/* === DISAMAKAN DENGAN FRESH SECTION === */
 .menu-section-label {
-    display: inline-block;
-    background: #8B4513;
-    color: white;
-    padding: 8px 20px;
-    border-radius: 25px;
-    font-size: 14px;
+    background: transparent !important;
+    font-size: 12px ;
     font-weight: 600;
+    color: #D4AF37 !important;
     letter-spacing: 2px;
-    margin-bottom: 20px;
     text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+}
+
+.menu-section-label::before,
+.menu-section-label::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 50px;
+    height: 1px;
+    background: #D4AF37;
+}
+
+.menu-section-label::before {
+    left: -65px;
+}
+
+.menu-section-label::after {
+    right: -65px;
 }
 
 .menu-section-title {
-    font-size: 3rem;
-    font-weight: 800;
-    color: #2c2c2c;
-    margin-bottom: 20px;
-    letter-spacing: -2px;
-    line-height: 1.1;
+  font-size: 40px !important;
+    font-weight: 700;
+    color: #1a1a1a !important;
+    line-height: 1.2;
+    margin: 0 0 20px 0;
+    letter-spacing: -0.5px;
+    font-family: 'Inter', sans-serif !important;
+    text-transform: uppercase;
 }
 
 .menu-section-description {
-    font-size: 1.2rem;
-    color: #666;
+    font-size: 16px !important;
+    color: #666666;
     line-height: 1.6;
-    max-width: 600px;
-    margin: 0 auto;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
 }
+/* === END DISAMAKAN === */
 
 .menu-section-grid {
     display: grid;
@@ -80,15 +103,12 @@
     transform: scale(1.1);
 }
 
-
-
 .menu-section-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
     display: flex;
     align-items: flex-end;
     padding: 20px;
@@ -188,17 +208,34 @@
     .menu-section {
         padding: 60px 0;
     }
+
+    .menu-section-label::before,
+    .menu-section-label::after {
+        display: none;
+    }
+
+    .menu-section-title {
+        font-size: 28px;
+    }
+
+    .menu-section-description {
+        font-size: 14px;
+    }
+
     .menu-section-grid {
         grid-template-columns: 1fr;
         gap: 30px;
         padding: 0 20px;
     }
+
     .menu-section-image {
         height: 200px;
     }
+
     .menu-section-content {
         padding: 25px;
     }
+
     .menu-section-details {
         flex-direction: column;
         gap: 15px;
@@ -210,9 +247,11 @@
     .menu-section-title {
         font-size: 2rem;
     }
+
     .menu-section-grid {
         padding: 0 15px;
     }
+
     .menu-section-content {
         padding: 20px;
     }

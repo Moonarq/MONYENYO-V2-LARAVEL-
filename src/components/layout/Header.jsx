@@ -3,7 +3,7 @@ import logoImg from '../../assets/images/logo.png';
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../hooks/useLanguage'
 import { useNavbarScroll } from '../../hooks/useNavbarScroll'
-import { useCart } from '../../contexts/CartContext' // Pastikan path ini sesuai
+import { useCart } from '../../contexts/CartContext'
 import './Header.css'
 
 const Header = () => {
@@ -11,9 +11,8 @@ const Header = () => {
   const location = useLocation()
   const navigate = useNavigate()
   
-  // Gunakan cart context untuk mendapatkan jumlah jenis produk
-const { cartCount } = useCart();
-const cartItemsCount = cartCount; // Jumlah jenis produk, bukan total quantity
+  const { cartCount } = useCart();
+  const cartItemsCount = cartCount;
 
   useEffect(() => {
     const updateNavbarSolid = () => {
@@ -98,9 +97,7 @@ const cartItemsCount = cartCount; // Jumlah jenis produk, bukan total quantity
         closeMobileMenu()
       }
     }
-
     document.addEventListener('keydown', handleKeyDown)
-    
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.body.classList.remove('mobile-menu-active')
@@ -142,9 +139,9 @@ const cartItemsCount = cartCount; // Jumlah jenis produk, bukan total quantity
   return (
     <header className={`header ${isNavbarSolid ? 'desktop-solid' : 'desktop-transparent'}`}> 
       <div className="container">
+
         {/* Mobile Left Section - Hamburger & Cart */}
         <div className="mobile-left-section">
-          {/* Hamburger Menu Button (Mobile Only) */}
           <button 
             className={`hamburger-menu ${isMenuOpen ? 'active menu-open' : ''}`}
             onMouseDown={saveScrollPosition}
@@ -157,7 +154,6 @@ const cartItemsCount = cartCount; // Jumlah jenis produk, bukan total quantity
             <span></span>
           </button>
 
-          {/* Mobile Cart Icon with Badge */}
           <Link to="/cart" className="mobile-cart-icon" aria-label="Cart">
             <i className="fas fa-shopping-cart"></i>
             {cartItemsCount > 0 && (
@@ -168,7 +164,7 @@ const cartItemsCount = cartCount; // Jumlah jenis produk, bukan total quantity
           </Link>
         </div>
 
-        {/* Social Media Icons */}
+        {/* 1. Social Media Icons */}
         <div className="social-icons">
           <a 
             href="https://www.instagram.com/monyenyo.bdg?igsh=cXloM2VqczJ1YTY2" 
@@ -197,7 +193,29 @@ const cartItemsCount = cartCount; // Jumlah jenis produk, bukan total quantity
           </a>
         </div>
 
-        {/* Navigation Menu */}
+        {/* 2. Logo */}
+        <div className="nav-logo">
+          <Link to="/" className="logo-text" onClick={async (e) => {
+            e.preventDefault();
+            if (location.pathname === '/') {
+              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            } else {
+              closeMobileMenu();
+              navigate('/');
+              setTimeout(() => {
+                document.documentElement.classList.add('no-smooth-scroll');
+                window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+                setTimeout(() => {
+                  document.documentElement.classList.remove('no-smooth-scroll');
+                }, 32);
+              }, 100);
+            }
+          }}>
+            <img src={logoImg} alt="Monyenyo Logo" className="desktop-navbar-logo" style={{ height: 42, width: 160 }} />
+          </Link>
+        </div>
+
+        {/* 3. Navigation Menu */}
         <nav className="nav-menu">
           <Link 
             to="/" 
@@ -220,32 +238,6 @@ const cartItemsCount = cartCount; // Jumlah jenis produk, bukan total quantity
           >
             MENU
           </Link>
-        </nav>
-
-        {/* Logo */}
-        <div className="nav-logo">
-          <Link to="/" className="logo-text" onClick={async (e) => {
-            e.preventDefault();
-            if (location.pathname === '/') {
-              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-            } else {
-              closeMobileMenu();
-              navigate('/');
-              setTimeout(() => {
-                document.documentElement.classList.add('no-smooth-scroll');
-                window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-                setTimeout(() => {
-                  document.documentElement.classList.remove('no-smooth-scroll');
-                }, 32);
-              }, 100);
-            }
-          }}>
-            <img src={logoImg} alt="Monyenyo Logo" className="desktop-navbar-logo" style={{ height: 42, width: 160 }} />
-          </Link>
-        </div>
-
-        {/* Right Navigation */}
-        <nav className="nav-menu-right">
           <Link 
             to="/tracking" 
             className={`nav-link ${isActive('/tracking') ? 'active' : ''}`}
@@ -269,9 +261,8 @@ const cartItemsCount = cartCount; // Jumlah jenis produk, bukan total quantity
           </Link>
         </nav>
 
-        {/* Language Toggle */}
+        {/* 4. Cart & Language Toggle */}
         <div className="language-toggle">
-          {/* Desktop Cart Icon with Badge */}
           <Link to="/cart" className="cart-icon" aria-label="Cart">
             <i className="fas fa-shopping-cart"></i>
             {cartItemsCount > 0 && (
@@ -298,6 +289,7 @@ const cartItemsCount = cartCount; // Jumlah jenis produk, bukan total quantity
             ID
           </span>
         </div>
+
       </div>
 
       {/* Mobile Menu Overlay */}
